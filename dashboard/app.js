@@ -176,6 +176,10 @@ function renderTimelineChart(threshold) {
         timelineChartInstance.destroy();
     }
     
+    const textSecondary = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || 'hsl(220, 14%, 68%)';
+    const textPrimary = getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim() || 'hsl(0, 0%, 95%)';
+    const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim() || 'rgba(255, 255, 255, 0.03)';
+    
     timelineChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -209,7 +213,7 @@ function renderTimelineChart(threshold) {
             plugins: {
                 legend: {
                     position: 'top',
-                    labels: { color: 'hsl(0, 0%, 95%)', font: { family: 'Outfit', size: 12 } }
+                    labels: { color: textPrimary, font: { family: 'Outfit', size: 12 } }
                 },
                 tooltip: {
                     callbacks: {
@@ -221,13 +225,13 @@ function renderTimelineChart(threshold) {
             },
             scales: {
                 x: {
-                    grid: { color: 'rgba(255, 255, 255, 0.03)' },
-                    ticks: { color: 'hsl(220, 14%, 68%)', font: { family: 'Outfit' } }
+                    grid: { color: gridColor },
+                    ticks: { color: textSecondary, font: { family: 'Outfit' } }
                 },
                 y: {
-                    grid: { color: 'rgba(255, 255, 255, 0.03)' },
+                    grid: { color: gridColor },
                     ticks: {
-                        color: 'hsl(220, 14%, 68%)',
+                        color: textSecondary,
                         font: { family: 'Outfit' },
                         callback: function(value) { return '$' + formatCurrency(value); }
                     }
@@ -261,6 +265,9 @@ function renderRegionChart(threshold) {
         regionChartInstance.destroy();
     }
     
+    const textSecondary = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || 'hsl(220, 14%, 68%)';
+    const cardBg = getComputedStyle(document.documentElement).getPropertyValue('--bg-surface').trim() || 'rgba(15, 23, 42, 0.85)';
+    
     regionChartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: {
@@ -276,7 +283,7 @@ function renderRegionChart(threshold) {
                     'rgba(156, 39, 176, 0.75)'   // Purple
                 ],
                 borderWidth: 1,
-                borderColor: 'rgba(15, 23, 42, 0.85)'
+                borderColor: cardBg
             }]
         },
         options: {
@@ -285,7 +292,7 @@ function renderRegionChart(threshold) {
             plugins: {
                 legend: {
                     position: 'bottom',
-                    labels: { color: 'hsl(220, 14%, 68%)', font: { family: 'Outfit', size: 11 } }
+                    labels: { color: textSecondary, font: { family: 'Outfit', size: 11 } }
                 },
                 tooltip: {
                     callbacks: {

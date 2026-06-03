@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ApexForecast | Salesforce Predictive Analytics Dashboard (Light Theme)</title>
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style_light.css">
+</head>
+<body>
+    <div class="glass-bg-glow"></div>
+    
+    <div class="app-container">
+        <!-- HEADER ZONE -->
+        <header class="app-header">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>ApexForecast</h1>
+                    <p>Salesforce Predictive Pipeline Analytics</p>
+                </div>
+            </div>
+            
+            <div class="model-badge-container">
+                <div class="badge status">
+                    <span class="pulse-ring"></span>
+                    <span class="badge-label">Predictive Engine: Active</span>
+                </div>
+                <div class="badge metric">
+                    <i class="fa-solid fa-bullseye"></i>
+                    <span>Accuracy: 73.0%</span>
+                </div>
+                <div class="badge metric">
+                    <i class="fa-solid fa-chart-area"></i>
+                    <span>ROC-AUC: 0.794</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- SIMULATION CONTROL PANEL -->
+        <section class="simulation-panel card">
+            <div class="sim-header">
+                <div class="sim-title">
+                    <i class="fa-solid fa-sliders"></i>
+                    <h2>Interactive Pipeline Simulation & Scenario Planner</h2>
+                </div>
+                <div class="sim-presets">
+                    <button class="btn btn-outline active" id="btn-all">All Deals</button>
+                    <button class="btn btn-outline" id="btn-mid">Mid-to-High (>40%)</button>
+                    <button class="btn btn-outline" id="btn-high">High Conviction (>60%)</button>
+                </div>
+            </div>
+            
+            <div class="sim-body">
+                <div class="slider-group">
+                    <div class="slider-labels">
+                        <span class="label-title">Minimum Win Probability Threshold</span>
+                        <span class="label-value" id="probability-threshold-val">0%</span>
+                    </div>
+                    <div class="slider-container">
+                        <span class="slider-cap left">0%</span>
+                        <input type="range" id="probability-threshold" min="0" max="100" value="0" class="custom-slider">
+                        <span class="slider-cap right">100%</span>
+                    </div>
+                </div>
+                <p class="sim-description">
+                    Adjust the slider to dynamically simulate risk mitigation. Deals falling below the threshold are filtered out, reflecting a "highly defensive" quarterly pipeline view.
+                </p>
+            </div>
+        </section>
+
+        <!-- KPI SUMMARY GRID -->
+        <section class="kpi-grid">
+            <div class="kpi-card card card-glow-primary">
+                <div class="kpi-icon icon-primary">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+                <div class="kpi-details">
+                    <h3>Total Nominal Pipeline</h3>
+                    <div class="kpi-value-container">
+                        <span class="kpi-value" id="kpi-nominal">$0.00</span>
+                    </div>
+                    <p class="kpi-subtext">Unweighted active pipeline total exposure</p>
+                </div>
+            </div>
+
+            <div class="kpi-card card card-glow-success">
+                <div class="kpi-icon icon-success">
+                    <i class="fa-solid fa-circle-dollar-to-slot"></i>
+                </div>
+                <div class="kpi-details">
+                    <h3>Risk-Adjusted Expected Revenue</h3>
+                    <div class="kpi-value-container">
+                        <span class="kpi-value font-success" id="kpi-expected">$0.00</span>
+                    </div>
+                    <p class="kpi-subtext">Expected revenue quarterly forecast (Probability × Value)</p>
+                </div>
+            </div>
+
+            <div class="kpi-card card card-glow-secondary">
+                <div class="kpi-icon icon-secondary">
+                    <i class="fa-solid fa-percentage"></i>
+                </div>
+                <div class="kpi-details">
+                    <h3>Weighted Pipeline Win Rate</h3>
+                    <div class="kpi-value-container">
+                        <span class="kpi-value font-secondary" id="kpi-winrate">0.0%</span>
+                    </div>
+                    <p class="kpi-subtext">Value-weighted success probability across all active deals</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CHARTS GRID -->
+        <section class="charts-grid">
+            <!-- Left Chart - Quarterly Forecast Timeline -->
+            <div class="chart-container card main-chart">
+                <div class="chart-header">
+                    <h3><i class="fa-regular fa-calendar-check"></i> Quarterly Expected Revenue Forecast Timeline</h3>
+                    <p>Comparison of nominal active pipeline vs. risk-adjusted forecast by Fiscal Period (FP)</p>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="timelineChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Right Chart - Regional Distribution -->
+            <div class="chart-container card side-chart">
+                <div class="chart-header">
+                    <h3><i class="fa-solid fa-earth-americas"></i> Regional Revenue Distribution</h3>
+                    <p>Expected forecast contributions by geographic market segment</p>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="regionChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- BUSINESS UNIT SEGMENTATION -->
+        <section class="bu-section card">
+            <div class="bu-header">
+                <h3><i class="fa-solid fa-building-user"></i> Business Unit Performance Matrix</h3>
+                <p>Top 5 Business Units ranked by Risk-Adjusted expected revenue contribution</p>
+            </div>
+            <div class="bu-grid" id="bu-cards-container">
+                <!-- Dynamically populated BU cards -->
+            </div>
+        </section>
+
+        <!-- HIGH-IMPACT OPPORTUNITIES TABLE -->
+        <section class="table-section card">
+            <div class="table-header-container">
+                <div class="table-header-left">
+                    <h3><i class="fa-solid fa-list-check"></i> High-Impact Pipeline Opportunities</h3>
+                    <p>Top open deals ranked by Expected Revenue (Probability × Value) for the upcoming quarter</p>
+                </div>
+                <div class="table-controls">
+                    <div class="search-input-container">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="deal-search" placeholder="Search by client or country...">
+                    </div>
+                    <select id="region-filter" class="table-filter">
+                        <option value="all">All Regions</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="deals-table">
+                    <thead>
+                        <tr>
+                            <th>Opp Number</th>
+                            <th>Client / Account</th>
+                            <th>Region</th>
+                            <th>Business Unit</th>
+                            <th>Nominal Amount</th>
+                            <th>Win Probability</th>
+                            <th>Expected Revenue</th>
+                            <th>Expected FP</th>
+                        </tr>
+                    </thead>
+                    <tbody id="deals-table-body">
+                        <!-- Dynamically populated table rows -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- DRAG AND DROP CSV UPLOADER -->
+        <footer class="app-footer card">
+            <div class="uploader-area" id="drop-zone">
+                <div class="uploader-icon">
+                    <i class="fa-solid fa-file-csv"></i>
+                </div>
+                <div class="uploader-text">
+                    <h3>Score a New Pipeline Dataset</h3>
+                    <p>Drag and drop a new <code>quarterly_forecast_predictions.csv</code> file here to instantly re-populate this dashboard.</p>
+                </div>
+                <input type="file" id="csv-file-input" accept=".csv" class="hidden-input">
+                <button class="btn btn-primary" onclick="document.getElementById('csv-file-input').click()">Choose CSV File</button>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 ApexForecast Predictive Analytics Studio. Engineered with HSL Light Mode glassmorphic aesthetics.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Live Data source -->
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
