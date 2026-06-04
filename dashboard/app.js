@@ -18,6 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 2. Setup interactive event listeners
     setupEventListeners();
+    
+    // 3. Setup help icon tooltips
+    setupHelpIcons();
 });
 
 // Initialize dashboard UI components and charts
@@ -586,4 +589,86 @@ function parseCSV(text) {
         avg_probability,
         top_deals
     };
+}
+
+// Help Icon Tooltip Logic and Definitions
+const helpDefinitions = {
+    nominal: {
+        title: "Total Nominal Pipeline",
+        text: "The sum of the raw, unweighted values (Un-Wtd Net Amount) for all active, open opportunities that meet the selected win probability threshold. Represents your total potential contract exposure."
+    },
+    expected: {
+        title: "Risk-Adjusted Expected Revenue",
+        text: "The projected value of your pipeline, calculated by multiplying each individual deal's value by its predicted win probability and summing them (Sum of Amount x Win Probability)."
+    },
+    winrate: {
+        title: "Weighted Pipeline Win Rate",
+        text: "The value-weighted success probability across all active opportunities. Calculated as Total Expected Revenue divided by Total Nominal Pipeline. Larger deals have a higher impact."
+    },
+    timeline: {
+        title: "Quarterly Forecast Timeline",
+        text: "A timeline chart grouped by Fiscal Period. Bars represent the total nominal value scheduled to close, while the line represents the model's risk-adjusted expected revenue forecast."
+    },
+    region: {
+        title: "Regional Revenue Distribution",
+        text: "A doughnut chart showing the distribution of total risk-adjusted expected revenue across geographical market segments (e.g. North America, EMEA, Asia)."
+    },
+    bu: {
+        title: "Business Unit Performance Matrix",
+        text: "Top five internal business divisions ranked by their projected risk-adjusted expected revenue contributions, showing both expected value and nominal pipeline."
+    },
+    table: {
+        title: "High-Impact Pipeline Opportunities",
+        text: "A ranked list of active opportunities sorted by Expected Revenue. Helps sales operations prioritize and target high-value, high-probability deals first."
+    }
+};
+
+function setupHelpIcons() {
+    const popover = document.createElement('div');
+    popover.id = 'help-popover';
+    popover.className = 'help-popover';
+    popover.innerHTML = `
+        <div class="popover-content">
+            <h4 id="popover-title">Help</h4>
+            <p id="popover-text">Definition</p>
+        </div>
+    `;
+    document.body.appendChild(popover);
+
+    let activeIcon = null;
+
+    document.addEventListener('click', (e) => {
+        const icon = e.target.closest('.help-icon');
+        
+        if (icon) {
+            e.stopPropagation();
+            const helpKey = icon.getAttribute('data-help');
+            const def = helpDefinitions[helpKey];
+            
+            if (def) {
+                if (activeIcon === icon) {
+                    popover.className = 'help-popover';
+                    activeIcon = null;
+                } else {
+                    document.getElementById('popover-title').textContent = def.title;
+                    document.getElementById('popover-text').textContent = def.text;
+                    
+                    popover.className = 'help-popover visible';
+                    
+                    const rect = icon.getBoundingClientRect();
+                    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    
+                    // Position popover relative to document body (center horizontally under the icon)
+                    popover.style.left = (rect.left + scrollLeft - (popover.offsetWidth / 2) + (rect.width / 2)) + 'px';
+                    popover.style.top = (rect.bottom + scrollTop + 8) + 'px';
+                    
+                    activeIcon = icon;
+                }
+            }
+        } else if (activeIcon) {
+            popover.className = 'help-popover';
+            activeIcon = null;
+        }
+    });
 }
